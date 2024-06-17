@@ -106,6 +106,5 @@
         }
       }
     }
-  },
-  "defaultProject": "angular-user-list-app"
+  }
 }
