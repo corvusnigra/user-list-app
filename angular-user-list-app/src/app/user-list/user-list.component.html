@@ -10,7 +10,7 @@
       @for (user of users$ | async; track user.id) {
         <mat-list-item>
           <div matListItemTitle>{{user.user_name}}</div>
-          <div matListItemLine>{{user.is_active}}</div>
+          <div matListItemLine>{{user.is_active ? 'active' : 'not active'}}</div>
           <button matListItemIcon mat-icon-button (click)="onDelete(user.id)">
             <mat-icon>delete</mat-icon>
           </button>
