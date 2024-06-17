@@ -1,32 +1,11 @@
 // users-api.service.ts
-import { Injectable, inject } from '@angular/core';
-import { signalStore, withState, withMethods, withComputed } from '@ngrx/signals';
-import { patchState } from '@ngrx/signals';
-import { of, delay } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Observable, of, delay } from 'rxjs';
+import {ListRequest, UserDto, UserListResponseDto} from "./models";
 
-export interface UserDto {
-  id: string;
-  user_name: string;
-  is_active: boolean;
-}
-
-export interface ListRequest {
-  pageNumber: number;
-  search?: string;
-  itemsPerPage: 5 | 10 | 20;
-}
-
-export interface UserListResponseDto {
-  total_count: number;
-  items: UserDto[];
-}
-
-const initialState: {
-  users: UserDto[];
-  listRequest: ListRequest;
-  userListResponse: UserListResponseDto;
-} = {
-  users: [
+@Injectable({ providedIn: 'root' })
+export class UsersApi {
+  private DB: UserDto[] = [
     { id: 'u1', user_name: 'Ivan Z.', is_active: true },
     { id: 'u2', user_name: 'Mikhail X.', is_active: true },
     { id: 'u3', user_name: 'Ivan C.', is_active: true },
@@ -44,61 +23,38 @@ const initialState: {
     { id: 'u15', user_name: 'Roman K.', is_active: true },
     { id: 'u16', user_name: 'Ivan L.', is_active: true },
     { id: 'u17', user_name: 'Ivan Q.', is_active: true },
-  ],
-  listRequest: {
-    pageNumber: 1,
-    itemsPerPage: 10,
-  },
-  userListResponse: {
-    total_count: 0,
-    items: [],
-  },
-};
+  ];
 
-@Injectable({ providedIn: 'root' })
-export const UsersApiStore = signalStore(
-  withState(initialState),
-  withComputed(({ users, listRequest }) => ({
-    filteredUsers: computed(() => {
-      let filteredUsers = users();
-      const { search } = listRequest();
 
-      if (search) {
-        filteredUsers = filteredUsers.filter((user) =>
-          user.user_name.toLowerCase().includes(search.toLowerCase())
-        );
-      }
+  getList(request: ListRequest): Observable<UserListResponseDto> {
+    const { pageNumber, search, itemsPerPage } = request;
+    let filteredUsers = this.DB;
 
-      return filteredUsers;
-    }),
-  })),
-  withMethods((store) => ({
-    getList() {
-      const { pageNumber, itemsPerPage } = store.listRequest();
-      const filteredUsers = store.filteredUsers();
+    if (search) {
+      filteredUsers = filteredUsers.filter((user) =>
+        user.user_name.toLowerCase().includes(search.toLowerCase())
+      );
+    }
 
-      const startIndex = (pageNumber - 1) * itemsPerPage;
-      const endIndex = startIndex + itemsPerPage;
-      const items = filteredUsers.slice(startIndex, endIndex);
+    const startIndex = (pageNumber - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const items = filteredUsers.slice(startIndex, endIndex);
 
-      const response: UserListResponseDto = {
-        total_count: filteredUsers.length,
-        items,
-      };
+    const response: UserListResponseDto = {
+      total_count: filteredUsers.length,
+      items
+    };
 
-      patchState(store, { userListResponse: response });
+    return of(response).pipe(delay(500));
+  }
 
-      return of(response).pipe(delay(500));
-    },
-    getById(id: string) {
-      const user = store.users().find((user) => user.id === id);
-      return of(user).pipe(delay(500));
-    },
-    remove(id: string) {
-      patchState(store, (state) => ({
-        users: state.users.filter((user) => user.id !== id),
-      }));
-      return of(undefined).pipe(delay(500));
-    },
-  }))
-);
+  getById(id: string): Observable<UserDto> {
+    const user = this.DB.find((user) => user.id === id);
+    return of(user!).pipe(delay(500));
+  }
+
+  remove(id: string): Observable<void> {
+    this.DB = this.DB.filter((user) => user.id !== id);
+    return of(undefined).pipe(delay(500));
+  }
+}

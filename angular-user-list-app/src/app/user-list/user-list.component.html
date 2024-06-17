@@ -1,0 +1,35 @@
+<mat-card>
+  <mat-card-title>User List</mat-card-title>
+  <mat-card-content>
+    <mat-form-field>
+      <mat-label>Search</mat-label>
+      <input matInput type="text" [(ngModel)]="searchTerm" (input)="onSearch()">
+    </mat-form-field>
+
+    <mat-list>
+      @for (user of users$ | async; track user.id) {
+        <mat-list-item>
+          <div matListItemTitle>{{user.user_name}}</div>
+          <div matListItemLine>{{user.is_active}}</div>
+          <button matListItemIcon mat-icon-button (click)="onDelete(user.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-list-item>
+      }
+    </mat-list>
+
+    @if (isLoading) {
+      <div>
+        <mat-spinner></mat-spinner>
+      </div>
+    }
+
+
+    <mat-paginator
+      [length]="totalCount"
+      [pageSize]="itemsPerPage"
+      [pageSizeOptions]="[5, 10, 20]"
+      (page)="onPageChange($event)">
+    </mat-paginator>
+  </mat-card-content>
+</mat-card>
