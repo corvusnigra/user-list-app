@@ -72,10 +72,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "angular-user-list-app:build:production"
+              "buildTarget": "angular-user-list-app:build:production"
             },
             "development": {
-              "browserTarget": "angular-user-list-app:build:development"
+              "buildTarget": "angular-user-list-app:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -83,7 +83,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "angular-user-list-app:build"
+            "buildTarget": "angular-user-list-app:build"
           }
         },
         "test": {
